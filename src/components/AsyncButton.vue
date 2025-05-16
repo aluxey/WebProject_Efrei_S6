@@ -1,4 +1,3 @@
-<!-- src/components/AsyncButton.vue -->
 <template>
   <BaseButton
     v-bind="filteredAttrs"
@@ -57,5 +56,4 @@ function handleClick(evt) {
 </script>
 
 <style scoped>
-/* Rien ici, BaseButton gère tout */
 </style>

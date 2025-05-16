@@ -1,20 +1,19 @@
-<!-- src/pages/CustomPage.vue -->
 <template>
-  <div class="custom-page">
-    <h1>Page Personnalisée</h1>
-    <p>Ici tu pourras ajouter ton formulaire pour les activités personnalisées.</p>
-  </div>
+  <section class="form-page">
+    <h2>Calcul Vol</h2>
+    <form @submit.prevent="onSubmit">
+      <label>Distance (km)<input v-model.number="distance" type="number" min="0" required /></label>
+      <BaseButton type="submit">Calculer</BaseButton>
+    </form>
+
+    <div v-if="result" class="result">
+      <p>
+        Émissions vol : <strong>{{ result.estimate.toFixed(2) }} kg CO₂e</strong>
+      </p>
+    </div>
+  </section>
 </template>
 
-<script>
-export default {
-  name: 'CustomPage'
-}
-</script>
 
 <style scoped>
-.custom-page {
-  padding: 2rem;
-  text-align: center;
-}
 </style>

@@ -1,4 +1,3 @@
-<!-- src/components/AuthButtons.vue -->
 <template>
   <div class="auth-buttons">
     <template v-if="isLoggedIn">
@@ -36,24 +35,22 @@ function logout() {
   align-items: center;
   gap: 0.6rem;
 }
-/* Texte de bienvenue */
 .welcome {
   color: #fff;
   font-weight: 500;
   margin-right: 1rem;
 }
 
-/* Microsoft bleu */
 .btn-ms {
   --btn-bg: #0078d4;
   --btn-hover-bg: #005a9e;
 }
-/* Google rouge */
+
 .btn-gg {
   --btn-bg: #db4437;
   --btn-hover-bg: #a3332a;
 }
-/* Bouton déconnexion style ghost */
+
 .btn-logout {
   --btn-bg: transparent;
   --btn-hover-bg: rgba(255,255,255,0.1);

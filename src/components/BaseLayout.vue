@@ -1,4 +1,3 @@
-<!-- src/components/BaseLayout.vue -->
 <template>
   <div class="base-layout">
     <BaseHeader/>

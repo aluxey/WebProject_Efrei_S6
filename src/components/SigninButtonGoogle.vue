@@ -1,13 +1,11 @@
-<!-- src/components/SigninButtonGoogle.vue -->
 <template>
-  <!-- le composant GoogleLogin encapsule ta logique OAuth -->
+  <!-- le composant GoogleLogin encapsule la logique OAuth -->
   <GoogleLogin
     :client_id="clientId"
     :scope="'profile email'"
     @success="handleSuccess"
     @error="handleError"
   >
-    <!-- slot par défaut : ton AsyncButton -->
     <AsyncButton color="warn">
       <template #default>
         <span v-if="user">👋 {{ user.name }}</span>

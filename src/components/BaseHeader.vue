@@ -1,4 +1,3 @@
-<!-- src/components/BaseHeader.vue -->
 <template>
   <header class="base-header">
     <div class="container">
@@ -8,6 +7,7 @@
         <router-link v-if="isLoggedIn" to="/cloud">Cloud</router-link>
         <router-link v-if="isLoggedIn" to="/flights">Vols</router-link>
         <router-link v-if="isLoggedIn" to="/custom">Personnalisé</router-link>
+        <router-link to="/history">Historique</router-link>
       </nav>
       <AuthButtons />
     </div>

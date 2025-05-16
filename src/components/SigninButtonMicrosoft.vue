@@ -1,4 +1,3 @@
-<!-- src/components/SigninButtonMicrosoft.vue -->
 <template>
   <AsyncButton @click="loginMicrosoft" color="primary">
     <template #default>
@@ -19,9 +18,7 @@ const user  = computed(() => store.currentUser)
 
 async function loginMicrosoft() {
   try {
-    // initialise MSAL v3+
     await msalInstance.initialize()
-
     // popup
     const authResult = await msalInstance.loginPopup(loginRequest)
     const acct       = authResult.account
@@ -32,7 +29,6 @@ async function loginMicrosoft() {
     return profile
 
   } catch (err) {
-    // ignore interaction_in_progress
     if (err.errorCode === 'interaction_in_progress') return
     console.error('MSAL login failed', err)
     throw err
