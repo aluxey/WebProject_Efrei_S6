@@ -8,41 +8,34 @@
   </AsyncButton>
 </template>
 
-<script>
-import { computed }      from 'vue'
-import { PublicClientApplication } from '@azure/msal-browser'
-import AsyncButton       from './AsyncButton.vue'
-import { useUserStore }  from '../stores/user'
+<script setup>
+import { computed }                   from 'vue'
+import AsyncButton                    from './AsyncButton.vue'
+import { msalInstance, loginRequest } from '../api/msal'
+import { useUserStore }               from '../stores/user'
 
-// Initialisation MSAL
-const msalConfig = {
-  auth: {
-    clientId: import.meta.env.VUE_APP_OAUTH_MICROSOFT_CLIENT_ID,
-    redirectUri: import.meta.env.VUE_APP_OAUTH_REDIRECT_URI
-  }
-}
-const msalInstance = new PublicClientApplication(msalConfig)
-const loginRequest = { scopes: ['User.Read'] }
+const store = useUserStore()
+const user  = computed(() => store.currentUser)
 
-export default {
-  name: 'SigninButtonMicrosoft',
-  components: { AsyncButton },
-  setup() {
-    const store = useUserStore()
-    const user  = computed(() => store.currentUser)
+async function loginMicrosoft() {
+  try {
+    // initialise MSAL v3+
+    await msalInstance.initialize()
 
-    async function loginMicrosoft() {
-      const result = await msalInstance.loginPopup(loginRequest)
-      const account = result.account
-      const profile = {
-        name: account.name,
-        username: account.username
-      }
-      store.setProfile(profile)
-      return profile
-    }
+    // popup
+    const authResult = await msalInstance.loginPopup(loginRequest)
+    const acct       = authResult.account
+      || msalInstance.getAllAccounts()[0]
 
-    return { loginMicrosoft, user }
+    const profile = { name: acct.name, username: acct.username }
+    store.setProfile(profile)
+    return profile
+
+  } catch (err) {
+    // ignore interaction_in_progress
+    if (err.errorCode === 'interaction_in_progress') return
+    console.error('MSAL login failed', err)
+    throw err
   }
 }
 </script>

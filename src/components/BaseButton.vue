@@ -1,76 +1,46 @@
+<!-- src/components/BaseButton.vue -->
 <template>
   <button
-    v-bind="$attrs"
+    class="base-button"
     :disabled="disabled"
-    :class="['base-button', `base-button--${color}`]"
+    v-bind="$attrs"
   >
-    <slot />
+    <slot/>
   </button>
 </template>
 
-<script>
-export default {
-  name: 'BaseButton',
-  props: {
-    color: {
-      type: String,
-      default: 'primary',
-      validator: value => ['primary', 'warn', 'danger'].includes(value)
-    },
-    disabled: {
-      type: Boolean,
-      default: false
-    }
-  }
-}
+<script setup>
+defineProps({
+  disabled: Boolean
+})
 </script>
 
 <style scoped>
 .base-button {
-  border: none;
-  color: white;
+  --bg: var(--btn-bg, #42b983);
+  --hover: var(--btn-hover-bg, #369a6f);
+  background: var(--bg);
+  color: #fff;
   padding: 0.6rem 1.2rem;
+  border: 0;
+  border-radius: 6px;
   font-size: 1rem;
-  border-radius: 4px;
+  font-weight: 500;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  transition: background 0.2s, transform 0.1s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
-
-/* Hover / focus (sauf disabled) */
-.base-button:not(:disabled):hover,
-.base-button:not(:disabled):focus {
-  transform: scale(1.03);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  outline: none;
+.base-button:hover:not(:disabled) {
+  background: var(--hover);
+  transform: translateY(-1px);
 }
-
-/* état disabled */
+.base-button:active:not(:disabled) {
+  transform: translateY(0);
+}
 .base-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-/* variantes couleur */
-.base-button--primary {
-  background-color: #42b983;
-}
-.base-button--primary:not(:disabled):hover {
-  background-color: #4cce93;
-}
-
-.base-button--warn {
-  background-color: #f0ad4e;
-}
-.base-button--warn:not(:disabled):hover {
-  background-color: #f7bb6f;
-}
-
-.base-button--danger {
-  background-color: #e53935;
-}
-.base-button--danger:not(:disabled):hover {
-  background-color: #ef5350;
 }
 </style>

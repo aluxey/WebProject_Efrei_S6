@@ -1,25 +1,17 @@
+<!-- src/components/BaseLayout.vue -->
 <template>
   <div class="base-layout">
-    <BaseHeader />
+    <BaseHeader/>
     <main class="content">
-      <!-- Le <router-view> dans App.vue se glissera ici -->
-      <slot />
+      <slot/>
     </main>
-    <BaseFooter />
+    <BaseFooter/>
   </div>
 </template>
 
-<script>
+<script setup>
 import BaseHeader from './BaseHeader.vue'
 import BaseFooter from './BaseFooter.vue'
-
-export default {
-  name: 'BaseLayout',
-  components: {
-    BaseHeader,
-    BaseFooter
-  }
-}
 </script>
 
 <style scoped>
@@ -30,6 +22,9 @@ export default {
 }
 .content {
   flex: 1;
-  padding: 1rem;
+  max-width: 1024px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  box-sizing: border-box;
 }
 </style>

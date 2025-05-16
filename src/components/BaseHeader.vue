@@ -1,61 +1,66 @@
+<!-- src/components/BaseHeader.vue -->
 <template>
   <header class="base-header">
-    <nav>
-      <RouterLink to="/" class="nav-link">Home</RouterLink>
-
-      <RouterLink v-if="isLoggedIn" to="/conversations" class="nav-link">
-        Conversations
-      </RouterLink>
-
-      <span class="spacer"></span>
-
-      <div class="auth-buttons">
-        <span v-if="isLoggedIn">{{ user.name }}</span>
-        <template v-else>
-          <SigninButtonMicrosoft class="btn-signin" />
-          <SigninButtonGoogle    class="btn-signin" />
-        </template>
-      </div>
-    </nav>
+    <div class="container">
+      <router-link to="/" class="logo">MyApp</router-link>
+      <nav class="nav-links">
+        <router-link to="/" exact>Accueil</router-link>
+        <router-link v-if="isLoggedIn" to="/cloud">Cloud</router-link>
+        <router-link v-if="isLoggedIn" to="/flights">Vols</router-link>
+        <router-link v-if="isLoggedIn" to="/custom">Personnalisé</router-link>
+      </nav>
+      <AuthButtons />
+    </div>
   </header>
 </template>
 
 <script setup>
-import { computed }      from 'vue'
-import { useUserStore }  from '../stores/user'
-import { RouterLink }    from 'vue-router'
-import SigninButtonMicrosoft from './SigninButtonMicrosoft.vue'
-import SigninButtonGoogle    from './SigninButtonGoogle.vue'
+import { computed }     from 'vue'
+import { useUserStore } from '../stores/user'
+import AuthButtons      from './AuthButtons.vue'
+import { RouterLink }   from 'vue-router'
 
-const userStore = useUserStore()
-const isLoggedIn = computed(() => userStore.isLoggedIn)
-const user       = computed(() => userStore.currentUser)
+const store = useUserStore()
+const isLoggedIn = computed(() => store.isLoggedIn)
 </script>
 
 <style scoped>
 .base-header {
-  background: #42b983;
-  padding: 0.5rem 1rem;
-  color: white;
+  position: sticky;
+  top: 0;
+  background: #1f1f1f;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  z-index: 10;
 }
-nav {
+.container {
   display: flex;
   align-items: center;
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 0.6rem 1rem;
 }
-.nav-link {
-  margin-right: 1rem;
-  color: white;
+.logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #42b983;
+  margin-right: 2rem;
   text-decoration: none;
 }
-.spacer {
+.nav-links {
+  display: flex;
+  gap: 1rem;
   flex: 1;
 }
-.auth-buttons {
-  display: flex;
-  gap: 0.5rem;
+.nav-links a {
+  color: #eee;
+  text-decoration: none;
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+  transition: background 0.2s;
 }
-.btn-signin {
-  font-size: 0.9rem;
-  padding: 0.3rem 0.6rem;
+.nav-links a.router-link-active,
+.nav-links a:hover {
+  background: rgba(255,255,255,0.1);
 }
 </style>
