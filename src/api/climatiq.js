@@ -1,33 +1,32 @@
+// src/api/climatiq.js
 import axios from 'axios'
 
-export const api = axios.create({
+const api = axios.create({
   baseURL: 'https://api.climatiq.io/data/v1',
   headers: {
-    Authorization: `Bearer ${import.meta.env.VITE_CLIMATIQ_API_KEY}`,
-    'Content-Type': 'application/json'
+    // NB : sous Node/Vite, expose votre clé via process.env.CLIMATIQ_API_KEY
+    Authorization: `Bearer ${process.env.CLIMATIQ_API_KEY}`
   }
 })
 
 /**
- * @param {string} activityId   ex: 'electricity-supply-grid-source-residual_mix'
- * @param {number} amount       ex: 4200
- * @param {string} unitKey      'energy' ou 'distance'
- * @param {string} unit         'kwh' ou 'km'
- * @param {string} dataVersion  ex: '21' selon la doc (non pas 'latest')
+ * Estime les émissions de CO₂ pour le mix électrique UK (exemple Climatiq).
+ * @param {number} energy  quantité d’énergie
+ * @param {string} unit    unité, ex: 'kWh'
  */
-export async function calculateEmission() {
-  const payload = {  }
-  console.log('🍃 payload:', payload)
-  try {
-    const res = await api.post('/estimate', payload)
-    return res.data
-  } catch (err) {
-    console.error('❌ Climatiq responded:', err.response?.status, err.response?.data)
-    throw err
+export async function estimateUkGridResidualMix(energy, unit = 'kWh') {
+  const payload = {
+    emission_factor: {
+      activity_id:  'electricity-supply_grid-source_supplier_mix',
+      region:       'GB',
+      data_version: 'a6'
+    },
+    parameters: {
+      energy:      energy,
+      energy_unit: unit
+    }
   }
-}
 
-// pour pouvoir tester en local seulement
-if (import.meta.env.DEV) {
-  window.calculateEmission = calculateEmission
+  const { data } = await api.post('/estimate', payload)
+  return data
 }

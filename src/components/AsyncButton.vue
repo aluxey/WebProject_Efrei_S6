@@ -9,21 +9,21 @@
       <font-awesome-icon icon="circle-notch" pulse />
     </span>
     <span v-else>
-      <slot/>
+      <slot />
     </span>
   </BaseButton>
 </template>
 
 <script setup>
 import { ref, computed, useAttrs } from 'vue'
-import BaseButton                  from './BaseButton.vue'
+import BaseButton from './BaseButton.vue'
 
 const props = defineProps({
   color: {
     type: String,
     default: 'primary',
-    validator: v => ['primary','warn','danger'].includes(v)
-  }
+    validator: (v) => ['primary', 'warn', 'danger'].includes(v),
+  },
 })
 
 const attrs = useAttrs()
@@ -47,7 +47,9 @@ function handleClick(evt) {
 
   // si c’est vraiment une Promise
   if (p && typeof p.finally === 'function') {
-    p.finally(() => { isPending.value = false })
+    p.finally(() => {
+      isPending.value = false
+    })
   } else {
     isPending.value = false
   }
@@ -55,5 +57,4 @@ function handleClick(evt) {
 }
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
