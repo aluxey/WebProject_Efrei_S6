@@ -1,32 +1,41 @@
-// src/api/climatiq.js
 import axios from 'axios'
 
-const api = axios.create({
+const client = axios.create({
   baseURL: 'https://api.climatiq.io/data/v1',
   headers: {
-    // NB : sous Node/Vite, expose votre clé via process.env.CLIMATIQ_API_KEY
-    Authorization: `Bearer ${process.env.CLIMATIQ_API_KEY}`
+    Authorization: `Bearer ${import.meta.env.VITE_CLIMATIQ_API_KEY}`,
+    'Content-Type': 'application/json'
   }
 })
 
-/**
- * Estime les émissions de CO₂ pour le mix électrique UK (exemple Climatiq).
- * @param {number} energy  quantité d’énergie
- * @param {string} unit    unité, ex: 'kWh'
- */
-export async function estimateUkGridResidualMix(energy, unit = 'kWh') {
+export async function estimateCpu(hours) {
   const payload = {
     emission_factor: {
-      activity_id:  'electricity-supply_grid-source_supplier_mix',
-      region:       'GB',
-      data_version: 'a6'
+      activity_id: 'compute-instance-cloud_cpu_core_time',
+      data_version: '2022'
     },
     parameters: {
-      energy:      energy,
-      energy_unit: unit
+      energy: hours,
+      energy_unit: 'h'
     }
   }
 
-  const { data } = await api.post('/estimate', payload)
+  const { data } = await client.post('/estimate', payload)
+  return data
+}
+
+export async function estimateRam(gbHours) {
+  const payload = {
+    emission_factor: {
+      activity_id: 'compute-instance-cloud_memory_gb_hour',
+      data_version: '2022'
+    },
+    parameters: {
+      energy: gbHours,
+      energy_unit: 'h*GB' 
+    }
+  }
+
+  const { data } = await client.post('/estimate', payload)
   return data
 }

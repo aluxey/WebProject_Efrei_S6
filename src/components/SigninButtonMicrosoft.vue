@@ -21,8 +21,7 @@ async function loginMicrosoft() {
     await msalInstance.initialize()
     // popup
     const authResult = await msalInstance.loginPopup(loginRequest)
-    const acct       = authResult.account
-      || msalInstance.getAllAccounts()[0]
+    const acct       = authResult.account|| msalInstance.getAllAccounts()[0]
 
     const profile = { name: acct.name, username: acct.username }
     store.setProfile(profile)

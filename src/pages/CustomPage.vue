@@ -16,6 +16,25 @@
   </section>
 </template>
 
+<script>
+export default {
+  data() {
+    return {
+      factorId: '',
+      amount: null,
+      unit: '',
+      result: null
+    };
+  },
+  methods: {
+    onSubmit() {
+      this.result = {
+        estimate: (this.amount || 0) * 2 
+      };
+    }
+  }
+};
+</script>
 
 <style scoped>
 </style>

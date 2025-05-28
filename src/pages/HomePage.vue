@@ -1,4 +1,3 @@
-<!-- src/pages/HomePage.vue -->
 <template>
   <section class="home">
     <h1>Bienvenue sur MyApp</h1>
@@ -9,12 +8,15 @@
     <router-link v-if="!isLoggedIn" to="/" class="cta">
       Connectez-vous pour commencer
     </router-link>
+
+    <Dashboard />
   </section>
 </template>
 
 <script setup>
 import { computed }     from 'vue'
 import { useUserStore } from '../stores/user'
+import Dashboard from '../components/Dashboard.vue'
 const store      = useUserStore()
 const isLoggedIn = computed(() => store.isLoggedIn)
 </script>

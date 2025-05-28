@@ -8,7 +8,6 @@
     </template>
     <template v-else>
       <SigninButtonMicrosoft class="btn-ms"/>
-      <SigninButtonGoogle class="btn-gg"/>
     </template>
   </div>
 </template>
@@ -17,8 +16,7 @@
 import { computed }      from 'vue'
 import { useUserStore }  from '../stores/user'
 import BaseButton        from './BaseButton.vue'
-import SigninButtonMicrosoft from './SigninButtonMicrosoft.vue'
-import SigninButtonGoogle    from './SigninButtonGoogle.vue'
+import SigninButtonMicrosoft from './SigninButtonMicrosoft.vue' 
 
 const store     = useUserStore()
 const user      = computed(() => store.currentUser)
