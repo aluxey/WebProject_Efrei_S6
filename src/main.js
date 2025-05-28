@@ -6,6 +6,10 @@ import Vue3GoogleLogin   from 'vue3-google-login'
 import { library }       from '@fortawesome/fontawesome-svg-core'
 import { faCircleNotch } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import 'leaflet/dist/leaflet.css'       // ← importer la CSS Leaflet **ici**, globalement
+import './assets/style.css'
+import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 
 library.add(faCircleNotch)
 

@@ -1,81 +1,120 @@
 <template>
-  <div class="emission-form">
-    <h2>Calculateur d'émissions de vol</h2>
-    <form @submit.prevent="calculateEmissions">
-      <div>
-        <label for="origin">Origine (code IATA)</label>
-        <input v-model="origin" id="origin" placeholder="Ex: CDG" required />
-      </div>
-      <div>
-        <label for="destination">Destination (code IATA)</label>
-        <input v-model="destination" id="destination" placeholder="Ex: JFK" required />
-      </div>
-      <button type="submit">Calculer</button>
-    </form>
+  <div class="container-fluid my-4">
+    <h2 class="text-center mb-4">Calculateur CO₂ de vols</h2>
 
-    <div v-if="loading">Calcul en cours...</div>
-    <div v-if="error" class="error">{{ error }}</div>
-    <div v-if="result">
-      <p>Distance estimée : {{ result.distance }} km</p>
-      <p>Émissions estimées : {{ result.co2e }} kg CO₂e</p>
+    <div class="row gx-4">
+      <!-- Carte élargie -->
+      <div class="col-lg-9">
+        <FlightsMap />
+      </div>
+
+      <!-- Formulaire -->
+      <div class="col-lg-3">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Sélection du vol</h5>
+
+            <div class="mb-2">
+              <label class="form-label">Départ</label>
+              <select v-model="fromCode" class="form-select">
+                <option disabled value="">— Choisir —</option>
+                <option v-for="a in airports" :key="a.code" :value="a.code">
+                  {{ a.name }}
+                </option>
+              </select>
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label">Arrivée</label>
+              <select v-model="toCode" class="form-select">
+                <option disabled value="">— Choisir —</option>
+                <option v-for="a in airports" :key="a.code" :value="a.code">
+                  {{ a.name }}
+                </option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Type d'avion</label>
+              <select v-model="aircraft" class="form-select">
+                <option>Court courrier (éco)</option>
+                <option>Long courrier (éco)</option>
+                <option>Long courrier (business)</option>
+              </select>
+            </div>
+
+            <button
+              class="btn btn-primary w-100"
+              :disabled="!fromCode || !toCode"
+              @click="estimateEmission"
+            >
+              Estimer CO₂
+            </button>
+
+            <div v-if="result" class="alert alert-info mt-3">
+              <p class="mb-1">
+                Distance : <strong>{{ distance.toFixed(1) }} km</strong><br/>
+                Émissions : <strong>{{ result.co2e.toFixed(1) }} {{ result.co2e_unit }}</strong>
+              </p>
+              <small class="text-muted">{{ result.note }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-import axios from 'axios'
+import FlightsMap from '@/components/FlightsMap.vue'
 
-const origin = ref('')
-const destination = ref('')
-const result = ref(null)
-const error = ref('')
-const loading = ref(false)
+const airports = [
+  { name: 'Atlanta (ATL)', code: 'ATL', lat: 33.6407, lon: -84.4277 },
+  { name: 'Beijing (PEK)', code: 'PEK', lat: 40.0801, lon: 116.5846 },
+  { name: 'Los Angeles (LAX)', code: 'LAX', lat: 33.9416, lon: -118.4085 },
+  { name: 'Dubai (DXB)', code: 'DXB', lat: 25.2532, lon: 55.3657 },
+  { name: 'Tokyo (HND)', code: 'HND', lat: 35.5494, lon: 139.7798 },
+  { name: 'Chicago (ORD)', code: 'ORD', lat: 41.9742, lon: -87.9073 },
+  { name: 'Heathrow (LHR)', code: 'LHR', lat: 51.4700, lon: -0.4543 },
+  { name: 'Pudong (PVG)', code: 'PVG', lat: 31.1443, lon: 121.8083 },
+  { name: 'CDG (Paris)', code: 'CDG', lat: 49.0097, lon: 2.5479 },
+  { name: 'DFW (Dallas)', code: 'DFW', lat: 32.8998, lon: -97.0403 }
+]
 
-const calculateEmissions = async () => {
-  loading.value = true
-  error.value = ''
-  result.value = null
+const fromCode = ref('')
+const toCode   = ref('')
+const aircraft = ref('Court courrier (éco)')
+const result   = ref(null)
+const distance = ref(0)
 
-  try {
-    const response = await axios.post(
-      'https://preview.api.climatiq.io/travel/v1-preview1/distance',
-      {
-        travel_mode: 'air',
-        origin: { iata: origin.value.toUpperCase() },
-        destination: { iata: destination.value.toUpperCase() }
-      },
-      {
-        headers: {
-          Authorization: 'Bearer VOTRE_CLE_API_ICI',
-          'Content-Type': 'application/json'
-        }
-      }
-    )
+function haversine(a, b) {
+  const [lat1, lon1] = a
+  const [lat2, lon2] = b
+  const R = 6371
+  const dLat = (lat2 - lat1) * Math.PI/180
+  const dLon = (lon2 - lon1) * Math.PI/180
+  const c = Math.sin(dLat/2)**2
+          + Math.cos(lat1 * Math.PI/180)
+          * Math.cos(lat2 * Math.PI/180)
+          * Math.sin(dLon/2)**2
+  return R * 2 * Math.atan2(Math.sqrt(c), Math.sqrt(1-c))
+}
 
-    const data = response.data
-    result.value = {
-      co2e: data.co2e,
-      distance: data.distance
-    }
-  } catch (err) {
-    error.value = 'Erreur lors du calcul : ' + (err.response?.data?.message || err.message)
-  } finally {
-    loading.value = false
+function estimateEmission() {
+  const from = airports.find(a => a.code === fromCode.value)
+  const to   = airports.find(a => a.code === toCode.value)
+  if (!from || !to) return
+
+  const dist = haversine([from.lat, from.lon], [to.lat, to.lon])
+  distance.value = dist
+  result.value = {
+    co2e: dist * 0.115,
+    co2e_unit: 'kg',
+    note: `Basé sur 0.115 kg CO₂e/km (${aircraft.value})`
   }
 }
 </script>
 
 <style scoped>
-.emission-form {
-  max-width: 400px;
-  margin: auto;
-  padding: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-}
-.error {
-  color: red;
-  margin-top: 1rem;
-}
 </style>

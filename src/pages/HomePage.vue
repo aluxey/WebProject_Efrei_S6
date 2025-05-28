@@ -5,9 +5,6 @@
       Calculez facilement votre empreinte carbone pour vos activités en cloud,
       vos vols ou vos projets personnalisés.
     </p>
-    <router-link v-if="!isLoggedIn" to="/" class="cta">
-      Connectez-vous pour commencer
-    </router-link>
 
     <Dashboard />
   </section>

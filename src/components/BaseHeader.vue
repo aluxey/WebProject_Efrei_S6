@@ -1,66 +1,62 @@
 <template>
-  <header class="base-header">
-    <div class="container">
-      <router-link to="/" class="logo">MyApp</router-link>
-      <nav class="nav-links">
-        <router-link to="/" exact>Accueil</router-link>
-        <router-link v-if="isLoggedIn" to="/cloud">Cloud</router-link>
-        <router-link v-if="isLoggedIn" to="/flights">Vols</router-link>
-        <router-link v-if="isLoggedIn" to="/custom">Personnalisé</router-link>
-        <router-link to="/history">Historique</router-link>
-      </nav>
-      <AuthButtons />
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container-fluid">
+      <!-- Logo -->
+      <router-link to="/" class="navbar-brand text-success">
+        MyApp
+      </router-link>
+
+      <!-- Toggler mobile -->
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#mainNav"
+        aria-controls="mainNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Liens -->
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <router-link to="/" class="nav-link" exact>Accueil</router-link>
+          </li>
+          <li v-if="isLoggedIn" class="nav-item">
+            <router-link to="/cloud" class="nav-link">Cloud</router-link>
+          </li>
+          <li v-if="isLoggedIn" class="nav-item">
+            <router-link to="/flights" class="nav-link">Vols</router-link>
+          </li>
+          <li v-if="isLoggedIn" class="nav-item">
+            <router-link to="/custom" class="nav-link">Personnalisé</router-link>
+          </li>
+          <li class="nav-item">
+            <router-link to="/history" class="nav-link">Historique</router-link>
+          </li>
+        </ul>
+
+        <!-- Auth buttons à droite -->
+        <div class="d-flex">
+          <AuthButtons />
+        </div>
+      </div>
     </div>
-  </header>
+  </nav>
 </template>
 
 <script setup>
 import { computed }     from 'vue'
-import { useUserStore } from '../stores/user'
+import { useUserStore } from '@/stores/user'
 import AuthButtons      from './AuthButtons.vue'
-import { RouterLink }   from 'vue-router'
 
 const store = useUserStore()
 const isLoggedIn = computed(() => store.isLoggedIn)
 </script>
 
 <style scoped>
-.base-header {
-  position: sticky;
-  top: 0;
-  background: #1f1f1f;
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  z-index: 10;
-}
-.container {
-  display: flex;
-  align-items: center;
-  max-width: 1024px;
-  margin: 0 auto;
-  padding: 0.6rem 1rem;
-}
-.logo {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #42b983;
-  margin-right: 2rem;
-  text-decoration: none;
-}
-.nav-links {
-  display: flex;
-  gap: 1rem;
-  flex: 1;
-}
-.nav-links a {
-  color: #eee;
-  text-decoration: none;
-  padding: 0.4rem 0.6rem;
-  border-radius: 4px;
-  transition: background 0.2s;
-}
-.nav-links a.router-link-active,
-.nav-links a:hover {
-  background: rgba(255,255,255,0.1);
-}
+/* Tu peux retirer le .base-header et .nav-links custom, Bootstrap gère tout */
 </style>

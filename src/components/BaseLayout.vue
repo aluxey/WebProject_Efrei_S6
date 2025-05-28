@@ -1,7 +1,7 @@
 <template>
-  <div class="base-layout">
+  <div class="d-flex flex-column min-vh-100">
     <BaseHeader/>
-    <main class="content">
+    <main class="flex-fill container-fluid px-4 py-3 bg-light">
       <slot/>
     </main>
     <BaseFooter/>
@@ -14,16 +14,14 @@ import BaseFooter from './BaseFooter.vue'
 </script>
 
 <style scoped>
-.base-layout {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
+main.container-fluid {
+  max-width: 100%;
 }
-.content {
-  flex: 1;
+main {
+  background-color: #f8f9fa;
+}
+.inner {
   max-width: 1024px;
-  margin: 2rem auto;
-  padding: 0 1rem;
-  box-sizing: border-box;
+  margin: 0 auto;
 }
 </style>
