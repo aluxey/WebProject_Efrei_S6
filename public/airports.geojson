@@ -1,0 +1,214 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "iata": "CDG",
+        "name": "Paris–Charles de Gaulle Airport"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [2.55, 49.0097]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iata": "JFK",
+        "name": "John F. Kennedy International Airport"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-73.7781, 40.6413]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iata": "LHR",
+        "name": "London Heathrow Airport"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-0.4543, 51.4700]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iata": "AMS",
+        "name": "Amsterdam Schiphol Airport"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [4.7639, 52.3105]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iata": "NRT",
+        "name": "Narita International Airport"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [140.3929, 35.7767]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iata": "HND",
+        "name": "Tokyo Haneda Airport"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [139.7811, 35.5494]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iata": "DXB",
+        "name": "Dubai International Airport"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [55.3644, 25.2528]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iata": "LAX",
+        "name": "Los Angeles International Airport"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-118.4085, 33.9416]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iata": "SFO",
+        "name": "San Francisco International Airport"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.3790, 37.6213]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iata": "ORD",
+        "name": "Chicago O'Hare International Airport"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-87.9073, 41.9742]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iata": "ATL",
+        "name": "Hartsfield–Jackson Atlanta International Airport"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-84.4277, 33.6407]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iata": "FRA",
+        "name": "Frankfurt Airport"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [8.5706, 50.0379]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iata": "SIN",
+        "name": "Singapore Changi Airport"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [103.9940, 1.3644]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iata": "SYD",
+        "name": "Sydney Kingsford Smith Airport"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [151.1772, -33.9461]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iata": "PEK",
+        "name": "Beijing Capital International Airport"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [116.4074, 40.0801]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iata": "DEL",
+        "name": "Indira Gandhi International Airport"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.1031, 28.5665]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iata": "GRU",
+        "name": "São Paulo/Guarulhos–Governador André Franco Montoro International Airport"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-46.4818, -23.4356]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iata": "MAD",
+        "name": "Adolfo Suárez Madrid–Barajas Airport"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-3.5676, 40.4722]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "iata": "YYZ",
+        "name": "Toronto Pearson International Airport"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-79.6306, 43.6777]
+      }
+    }
+  ]
+}

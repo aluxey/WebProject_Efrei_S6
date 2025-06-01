@@ -1,12 +1,10 @@
 <template>
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-      <!-- Logo -->
       <router-link to="/" class="navbar-brand text-success">
         MyApp
       </router-link>
 
-      <!-- Toggler mobile -->
       <button
         class="navbar-toggler"
         type="button"
@@ -19,12 +17,14 @@
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <!-- Liens -->
       <div class="collapse navbar-collapse" id="mainNav">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <!-- Accueil is always shown -->
           <li class="nav-item">
             <router-link to="/" class="nav-link" exact>Accueil</router-link>
           </li>
+
+          <!-- Only show these if the user is logged in -->
           <li v-if="isLoggedIn" class="nav-item">
             <router-link to="/cloud" class="nav-link">Cloud</router-link>
           </li>
@@ -34,12 +34,23 @@
           <li v-if="isLoggedIn" class="nav-item">
             <router-link to="/custom" class="nav-link">Personnalisé</router-link>
           </li>
-          <li class="nav-item">
+          <li v-if="isLoggedIn" class="nav-item">
             <router-link to="/history" class="nav-link">Historique</router-link>
+          </li>
+          <li v-if="isLoggedIn" class="nav-item">
+            <router-link to="/energy" class="nav-link">Energy</router-link>
+          </li>
+          <li v-if="isLoggedIn" class="nav-item">
+            <router-link to="/freight" class="nav-link">Freight</router-link>
+          </li>
+          <li v-if="isLoggedIn" class="nav-item">
+            <router-link to="/procurement" class="nav-link">Procurement</router-link>
+          </li>
+          <li v-if="isLoggedIn" class="nav-item">
+            <router-link to="/product" class="nav-link">Product</router-link>
           </li>
         </ul>
 
-        <!-- Auth buttons à droite -->
         <div class="d-flex">
           <AuthButtons />
         </div>
@@ -49,14 +60,13 @@
 </template>
 
 <script setup>
-import { computed }     from 'vue'
+import { computed } from 'vue'
 import { useUserStore } from '@/stores/user'
-import AuthButtons      from './AuthButtons.vue'
+import AuthButtons from './AuthButtons.vue'
 
 const store = useUserStore()
 const isLoggedIn = computed(() => store.isLoggedIn)
 </script>
 
 <style scoped>
-/* Tu peux retirer le .base-header et .nav-links custom, Bootstrap gère tout */
 </style>

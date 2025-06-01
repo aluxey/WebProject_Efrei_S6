@@ -1,15 +1,14 @@
 <template>
   <div class="container-fluid my-5">
-    <h1 class="text-center mb-4">Calculateur CO₂ du Cloud (DIY)</h1>
+    <h1 class="text-center mb-4">Calculateur CO₂ du Cloud (Climatiq API)</h1>
 
     <div class="row gx-4">
-      <!-- Formulaire à gauche -->
       <div class="col-lg-8">
         <div class="card shadow-sm p-4">
           <h5 class="card-title mb-3">Vos paramètres</h5>
 
           <div class="mb-3">
-            <label class="form-label">CPU-core-hours</label>
+            <label class="form-label">CPU (heures de cœur)</label>
             <input
               type="number"
               v-model.number="cpuHours"
@@ -19,7 +18,7 @@
           </div>
 
           <div class="mb-3">
-            <label class="form-label">RAM GB-hours</label>
+            <label class="form-label">RAM (GB-heure)</label>
             <input
               type="number"
               v-model.number="ramHours"
@@ -29,7 +28,7 @@
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Stockage GB-mois</label>
+            <label class="form-label">Stockage (GB-mois)</label>
             <input
               type="number"
               v-model.number="storageGbm"
@@ -51,10 +50,14 @@
           <button
             class="btn btn-primary w-100"
             :disabled="!canEstimate"
-            @click="estimateDIY"
+            @click="estimateAPI"
           >
             Estimer CO₂
           </button>
+
+          <p v-if="errorMessage" class="text-danger mt-3">
+            {{ errorMessage }}
+          </p>
         </div>
       </div>
 
@@ -65,27 +68,27 @@
           <ul class="list-group list-group-flush mb-3">
             <li class="list-group-item d-flex justify-content-between">
               CPU
-              <span>{{ result.cpu.toFixed(2) }} kg</span>
+              <span>{{ result.cpu.toFixed(4) }} kg</span>
             </li>
             <li class="list-group-item d-flex justify-content-between">
               RAM
-              <span>{{ result.ram.toFixed(2) }} kg</span>
+              <span>{{ result.ram.toFixed(4) }} kg</span>
             </li>
             <li class="list-group-item d-flex justify-content-between">
               Stockage
-              <span>{{ result.storage.toFixed(2) }} kg</span>
+              <span>{{ result.storage.toFixed(4) }} kg</span>
             </li>
             <li class="list-group-item d-flex justify-content-between">
               Énergie
-              <span>{{ result.energy.toFixed(2) }} kg</span>
+              <span>{{ result.energy.toFixed(4) }} kg</span>
             </li>
           </ul>
           <div class="d-flex justify-content-between align-items-center">
             <strong>Total</strong>
-            <strong>{{ total.toFixed(2) }} kg CO₂e</strong>
+            <strong>{{ total.toFixed(4) }} kg CO₂e</strong>
           </div>
           <small class="text-muted mt-2 d-block">
-            Facteurs utilisés : CPU =0.5, RAM =0.05, Stockage =0.02, Énergie UK =0.599 kg/kWh
+            Estimations fournies par Climatiq API
           </small>
         </div>
       </div>
@@ -95,51 +98,66 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import {
+  estimateCpu,
+  estimateRam,
+  estimateStorage,
+  estimateUkGrid,
+} from '../api/climatiq'
 
-// 🌱 Facteurs moyens (modifiable selon ta charte)
-const FACTOR_CPU     = 0.5    // kg CO₂e par core-hour
-const FACTOR_RAM     = 0.05   // kg CO₂e par GB-hour
-const FACTOR_STORAGE = 0.02   // kg CO₂e par GB-mois
-const FACTOR_ENERGY  = 0.599  // kg CO₂e par kWh (UK mix, ex.)
-
-// Inputs
-const cpuHours   = ref(0)
-const ramHours   = ref(0)
+const cpuHours = ref(0)
+const ramHours = ref(0)
 const storageGbm = ref(0)
-const energyKwh  = ref(0)
+const energyKwh = ref(0)
 
-// Résultat
 const result = ref(null)
+const errorMessage = ref('')
 
-// Disponible si toutes les valeurs >0
-const canEstimate = computed(() =>
-  cpuHours.value > 0 &&
-  ramHours.value > 0 &&
-  storageGbm.value > 0 &&
-  energyKwh.value > 0
+const canEstimate = computed(
+  () =>
+    cpuHours.value > 0 &&
+    ramHours.value > 0 &&
+    storageGbm.value > 0 &&
+    energyKwh.value > 0
 )
 
-// Total
 const total = computed(() =>
   result.value
-    ? result.value.cpu
-      + result.value.ram
-      + result.value.storage
-      + result.value.energy
+    ? result.value.cpu +
+      result.value.ram +
+      result.value.storage +
+      result.value.energy
     : 0
 )
 
-// Calcul DIY
-function estimateDIY() {
-  result.value = {
-    cpu:     cpuHours.value   * FACTOR_CPU,
-    ram:     ramHours.value   * FACTOR_RAM,
-    storage: storageGbm.value * FACTOR_STORAGE,
-    energy:  energyKwh.value  * FACTOR_ENERGY
+async function estimateAPI() {
+  errorMessage.value = ''
+  result.value = null
+
+  try {
+    const [cpuRes, ramRes, storageRes, energyRes] = await Promise.all([
+      estimateCpu(cpuHours.value),
+      estimateRam(ramHours.value),
+      estimateStorage(storageGbm.value),
+      estimateUkGrid(energyKwh.value),
+    ])
+
+    result.value = {
+      cpu: cpuRes.co2e || 0,
+      ram: ramRes.co2e || 0,
+      storage: storageRes.co2e || 0,
+      energy: energyRes.co2e || 0,
+    }
+  } catch (err) {
+    if (err.response && err.response.data) {
+      errorMessage.value = `Erreur Climatiq : ${err.response.data.error_type || 'Bad Request'}. Vérifiez la console pour le payload exact.`
+    } else {
+      errorMessage.value = 'Erreur réseau ou inconnue : ' + err.message
+    }
+    console.error('Erreur lors de l’estimation Climatiq :', err)
   }
 }
 </script>
 
 <style scoped>
-/* Lexend global + Bootstrap déjà actifs */
 </style>
