@@ -6,9 +6,7 @@ import CloudPage   from '../pages/CloudPage.vue'
 import CustomPage  from '../pages/CustomPage.vue'
 import HistoryPage from '../pages/HistoryPage.vue'
 import EnergyPage  from '../pages/EnergyPage.vue'
-import ProductPage from '../pages/ProductFootprintPage.vue'
 import FreightPage from '../pages/FreightPage.vue'
-import ProcurementPage from '../pages/ProcurementPage.vue'
 
 const routes = [
   { path: '/',        name: 'Home',    component: HomePage },
@@ -30,21 +28,9 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
-    path: '/product',
-    name: 'Product',
-    component: ProductPage,
-    meta: { requiresAuth: true }
-  },
-  {
     path: '/freight',
     name: 'Freight',
     component: FreightPage,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/procurement',
-    name: 'Procurement',
-    component: ProcurementPage,
     meta: { requiresAuth: true }
   },
 ]

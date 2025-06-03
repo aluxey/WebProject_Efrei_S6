@@ -1,5 +1,6 @@
 <template>
   <div class="container my-5">
+    <NotReady />
     <h1 class="mb-4 text-center">Émissions – Intermodal Freight (Climatiq API)</h1>
 
     <div class="row">
@@ -149,6 +150,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import axios from 'axios'
+import NotReady from '@/components/NotReady.vue'
 
 // —————————————————————————————————————————————————————————————
 // 1) DONNÉES RÉACTIVES

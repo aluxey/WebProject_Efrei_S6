@@ -1,6 +1,7 @@
 <!-- EnergyPage.vue -->
 <template>
   <div class="container my-5">
+    <NotReady />
     <h1 class="text-center mb-4">Calculateur Énergie (Climatiq API)</h1>
 
     <!-- NAVIGATION ENTRE SECTIONS -->
@@ -367,6 +368,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import axios from 'axios'
+import NotReady from '@/components/NotReady.vue'
 
 // ──────────────────────────────────────────────────────────────────────────────
 // 1) ONGLET ACTIF
