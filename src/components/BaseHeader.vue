@@ -43,12 +43,6 @@
           <li v-if="isLoggedIn" class="nav-item">
             <router-link to="/freight" class="nav-link">Freight</router-link>
           </li>
-          <li v-if="isLoggedIn" class="nav-item">
-            <router-link to="/procurement" class="nav-link">Procurement</router-link>
-          </li>
-          <li v-if="isLoggedIn" class="nav-item">
-            <router-link to="/product" class="nav-link">Product</router-link>
-          </li>
         </ul>
 
         <div class="d-flex">
