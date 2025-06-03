@@ -4,7 +4,6 @@
     <NotReady />
     <h1 class="text-center mb-4">Calculateur Énergie (Climatiq API)</h1>
 
-    <!-- NAVIGATION ENTRE SECTIONS -->
     <ul class="nav nav-tabs mb-4" role="tablist">
       <li class="nav-item" role="presentation">
         <button
@@ -41,12 +40,10 @@
       </li>
     </ul>
 
-    <!-- SECTION ÉLECTRICITÉ -->
     <div v-if="activeTab === 'electricity'">
       <div class="card shadow-sm p-4 mb-5">
         <h5 class="card-title mb-3">Estimation – Électricité</h5>
 
-        <!-- Formulaire Électricité -->
         <div class="mb-3">
           <label for="elec-region" class="form-label">Région / Pays (IATA ou région ONS)</label>
           <input
@@ -108,11 +105,9 @@
         <p v-if="elecError" class="text-danger mt-3">{{ elecError }}</p>
       </div>
 
-      <!-- Résultats Électricité -->
       <div v-if="elecResult" class="card shadow-sm p-4">
         <h5 class="card-title mb-3">Résultats – Électricité</h5>
 
-        <!-- Estimations “Location-based” -->
         <h6 class="mb-2">Méthode “Location” (Scope 2 location-based)</h6>
         <ul class="list-group mb-4">
           <li class="list-group-item d-flex justify-content-between">
@@ -133,7 +128,6 @@
           </li>
         </ul>
 
-        <!-- Estimations “Market-based” -->
         <h6 class="mb-2">Méthode “Market” (Scope 2 market-based)</h6>
         <ul class="list-group mb-4">
           <li class="list-group-item d-flex justify-content-between">
@@ -154,7 +148,6 @@
           </li>
         </ul>
 
-        <!-- Notices éventuelles -->
         <small class="text-muted">
           Méthode calcul : {{ elecResult.co2e_calculation_method }}<br />
           <template v-if="elecResult.notices && elecResult.notices.length">
@@ -167,12 +160,10 @@
       </div>
     </div>
 
-    <!-- SECTION CHALEUR & VAPEUR -->
     <div v-if="activeTab === 'heat'">
       <div class="card shadow-sm p-4 mb-5">
         <h5 class="card-title mb-3">Estimation – Chaleur & Vapeur</h5>
 
-        <!-- Formulaire Chaleur -->
         <div class="mb-3">
           <label for="heat-region" class="form-label">Région / Pays</label>
           <input
@@ -196,7 +187,6 @@
           />
         </div>
 
-        <!-- Montant total de chaleur/vapeur -->
         <div class="mb-3">
           <label class="form-label">Quantité de chaleur/vapeur consommée</label>
           <div class="input-group">
@@ -226,11 +216,9 @@
         <p v-if="heatError" class="text-danger mt-3">{{ heatError }}</p>
       </div>
 
-      <!-- Résultats Chaleur -->
       <div v-if="heatResult" class="card shadow-sm p-4">
         <h5 class="card-title mb-3">Résultats – Chaleur & Vapeur</h5>
 
-        <!-- Estimations (Energy Reporting Quad) -->
         <ul class="list-group mb-4">
           <li class="list-group-item d-flex justify-content-between">
             <span>Consommation (co2e)</span>
@@ -250,7 +238,6 @@
           </li>
         </ul>
 
-        <!-- Notices -->
         <small class="text-muted">
           Méthode calcul : {{ heatResult.co2e_calculation_method }}<br />
           <template v-if="heatResult.notices && heatResult.notices.length">
@@ -263,12 +250,10 @@
       </div>
     </div>
 
-    <!-- SECTION COMBUSTIBLE -->
     <div v-if="activeTab === 'fuel'">
       <div class="card shadow-sm p-4 mb-5">
         <h5 class="card-title mb-3">Estimation – Combustible</h5>
 
-        <!-- Formulaire Combustible -->
         <div class="mb-3">
           <label for="fuel-type" class="form-label">Type de combustible</label>
           <input
@@ -336,7 +321,6 @@
         <p v-if="fuelError" class="text-danger mt-3">{{ fuelError }}</p>
       </div>
 
-      <!-- Résultats Combustible -->
       <div v-if="fuelResult" class="card shadow-sm p-4">
         <h5 class="card-title mb-3">Résultats – Combustible</h5>
 
@@ -370,24 +354,17 @@ import { ref, computed } from 'vue'
 import axios from 'axios'
 import NotReady from '@/components/NotReady.vue'
 
-// ──────────────────────────────────────────────────────────────────────────────
-// 1) ONGLET ACTIF
-// ──────────────────────────────────────────────────────────────────────────────
 const activeTab = ref('electricity')
 
-// ──────────────────────────────────────────────────────────────────────────────
-// 2) ÉTAT RÉACTIF – ÉLECTRICITÉ
-// ──────────────────────────────────────────────────────────────────────────────
 const elecRegion = ref('')
 const elecYear = ref(null)
 const elecAmount = ref(0)
-const elecUnit = ref('')        // 'kWh' | 'MWh'
-const elecSourceSet = ref('')   // 'core' | 'iea'
+const elecUnit = ref('')
+const elecSourceSet = ref('')
 
 const elecError = ref('')
 const elecResult = ref(null)
 
-// Valide que le formulaire électricité a les champs requis
 const canEstimateElectricity = computed(() => {
   return (
     elecRegion.value.trim() !== '' &&
@@ -397,13 +374,10 @@ const canEstimateElectricity = computed(() => {
   )
 })
 
-// ──────────────────────────────────────────────────────────────────────────────
-// 3) ÉTAT RÉACTIF – CHALEUR & VAPEUR
-// ──────────────────────────────────────────────────────────────────────────────
 const heatRegion = ref('')
 const heatYear = ref(null)
 const heatAmount = ref(0)
-const heatUnit = ref('')      // 'kWh' | 'GJ'
+const heatUnit = ref('')
 
 const heatError = ref('')
 const heatResult = ref(null)
@@ -416,14 +390,11 @@ const canEstimateHeat = computed(() => {
   )
 })
 
-// ──────────────────────────────────────────────────────────────────────────────
-// 4) ÉTAT RÉACTIF – COMBUSTIBLE
-// ──────────────────────────────────────────────────────────────────────────────
 const fuelType = ref('')
 const fuelRegion = ref('')
 const fuelYear = ref(null)
 const fuelAmount = ref(0)
-const fuelUnit = ref('')     // 'MJ' | 'GJ' | 'kg'
+const fuelUnit = ref('')
 
 const fuelError = ref('')
 const fuelResult = ref(null)
@@ -437,14 +408,10 @@ const canEstimateFuel = computed(() => {
   )
 })
 
-// ──────────────────────────────────────────────────────────────────────────────
-// 5) FONCTION – ESTIMER ÉLECTRICITÉ
-// ──────────────────────────────────────────────────────────────────────────────
 async function estimateElectricity() {
   elecError.value = ''
   elecResult.value = null
 
-  // Construire le payload selon la doc Energy v1-preview1
   const payload = {
     region: elecRegion.value.trim(),
     amount: {
@@ -457,7 +424,6 @@ async function estimateElectricity() {
     payload.year = elecYear.value
   }
 
-  // Debugging
   console.group('🌿 Climatiq Électricité Request → /energy/v1-preview1/electricity')
   console.log('Authorization:', `Bearer ${import.meta.env.VITE_CLIMATIQ_API_KEY}`)
   console.log('Payload:', JSON.stringify(payload, null, 2))
@@ -490,9 +456,6 @@ async function estimateElectricity() {
   }
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// 6) FONCTION – ESTIMER CHALEUR & VAPEUR
-// ──────────────────────────────────────────────────────────────────────────────
 async function estimateHeat() {
   heatError.value = ''
   heatResult.value = null
@@ -512,7 +475,6 @@ async function estimateHeat() {
     payload.year = heatYear.value
   }
 
-  // Debugging
   console.group('🌿 Climatiq Chaleur Request → /energy/v1-preview1/heat')
   console.log('Authorization:', `Bearer ${import.meta.env.VITE_CLIMATIQ_API_KEY}`)
   console.log('Payload:', JSON.stringify(payload, null, 2))
@@ -545,9 +507,6 @@ async function estimateHeat() {
   }
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// 7) FONCTION – ESTIMER COMBUSTIBLE
-// ──────────────────────────────────────────────────────────────────────────────
 async function estimateFuel() {
   fuelError.value = ''
   fuelResult.value = null
@@ -564,7 +523,6 @@ async function estimateFuel() {
     payload.year = fuelYear.value
   }
 
-  // Debugging
   console.group('🌿 Climatiq Combustible Request → /energy/v1-preview1/fuel')
   console.log('Authorization:', `Bearer ${import.meta.env.VITE_CLIMATIQ_API_KEY}`)
   console.log('Payload:', JSON.stringify(payload, null, 2))
@@ -597,9 +555,6 @@ async function estimateFuel() {
   }
 }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// 8) FILTRE – PREMIÈRE LETTRE EN MAJUSCULE
-// ──────────────────────────────────────────────────────────────────────────────
 const capitalize = (str) => {
   if (typeof str !== 'string' || !str.length) return str
   return str.charAt(0).toUpperCase() + str.slice(1)
@@ -607,8 +562,6 @@ const capitalize = (str) => {
 </script>
 
 <style scoped>
-/* On utilise Bootstrap 5 pour la mise en page */
-/* Vous pouvez affiner si nécessaire */
 .container {
   max-width: 960px;
 }
