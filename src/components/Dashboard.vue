@@ -1,63 +1,94 @@
 <template>
-  <main class="grid">
-    <div class="card">
-      <h2>Nombre de vols cette année</h2>
-      <p class="value">123</p>
+  <section class="container my-5">
+    <h2 class="mb-4">Mon historique de consommations</h2>
+    <p>(seulement pour les users connectés avec google)</p>
+
+    <div v-if="!uid" class="alert alert-warning">
+      Vous devez être connecté·e pour voir votre historique.
     </div>
-    <div class="card">
-      <h2>Estimations CO₂</h2>
-      <p class="value">843 kg</p>
-      <p class="description">Émissions totales calculées</p>
-    </div>
-    <div class="card">
-      <h2>Nombre de trajet par semaine</h2>
-      <p class="value">7</p>
-      <p class="description">40km</p>
-    </div>
-    <div class="card">
-      <h2>Emission moyenne</h2>
-      <p class="value">Dans la moyenne française</p>
-      <p class="description">Mise à jour automatique</p>
-    </div>
-  </main>
+
+    <table v-else-if="consumptions.length" class="table table-striped">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Type</th>
+          <th>Détails</th>
+          <th>kg CO₂e</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="c in consumptions" :key="c.id">
+          <td>{{ formatDate(c.calculationAt) }}</td>
+          <td>{{ c.type || 'cloud' }}</td>
+          <td>
+            <template v-if="c.type === 'flight'">
+              {{ c.origin }} → {{ c.destination }}, {{ c.passengers }} pax, {{ c.flightClass }}
+            </template>
+            <template v-else>
+              CPU: {{ c.params?.cpuHours }}h, RAM: {{ c.params?.ramHours }} GBh, Storage:
+              {{ c.params?.storageGbm }} GBm, Energy: {{ c.params?.energyKwh }} kWh
+            </template>
+          </td>
+          <td>
+            <span v-if="c.type === 'flight'">
+              {{ (c.co2Kg || 0).toFixed(2) }}
+            </span>
+            <span v-else>
+              {{ (c.total || 0).toFixed(2) }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p v-else>Aucun calcul trouvé pour votre compte.</p>
+  </section>
 </template>
 
 <script setup>
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { useUserStore } from '@/stores/user'
+import { db } from '@/firebase'
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore'
+
+const store = useUserStore()
+const uid = computed(() => store.currentUser?.uid || null)
+
+const consumptions = ref([])
+let unsubscribe = null
+
+const formatDate = (ts) => ts.toDate().toLocaleString()
+
+onMounted(() => {
+  if (!uid.value) return
+
+  // Cible la sous‐collection "consommation" de l'utilisateur
+  const q = query(
+    collection(db, 'user', uid.value, 'consommation'),
+    orderBy('calculationAt', 'desc'),
+  )
+
+  unsubscribe = onSnapshot(
+    q,
+    (snapshot) => {
+      consumptions.value = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }))
+    },
+    (error) => {
+      console.error('Erreur chargement historique :', error)
+    },
+  )
+})
+
+onBeforeUnmount(() => {
+  if (unsubscribe) unsubscribe()
+})
 </script>
 
 <style scoped>
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.5rem;
-}
-
-.card {
-  background-color: #ffffff;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s ease;
-}
-
-.card:hover {
-  transform: translateY(-4px);
-}
-
-.card h2 {
-  font-size: 1.2rem;
-  color: #555;
-  margin-bottom: 0.5rem;
-}
-
-.value {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #2e86de;
-}
-
-.description {
-  color: #888;
-  font-size: 0.9rem;
+.container {
+  max-width: 800px;
 }
 </style>

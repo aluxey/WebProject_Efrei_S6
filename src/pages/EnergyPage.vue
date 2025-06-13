@@ -1,7 +1,6 @@
 <!-- EnergyPage.vue -->
 <template>
   <div class="container my-5">
-    <NotReady />
     <h1 class="text-center mb-4">Calculateur Énergie (Climatiq API)</h1>
 
     <ul class="nav nav-tabs mb-4" role="tablist">

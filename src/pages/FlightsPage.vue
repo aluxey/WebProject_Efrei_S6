@@ -28,13 +28,13 @@
           type="number"
           v-model.number="passengers"
           min="1"
-          :disabled="!canEstimate"
+          :disabled="!canEstimate || loading"
         />
       </label>
 
       <label>
         Class:
-        <select v-model="flightClass" :disabled="!canEstimate">
+        <select v-model="flightClass" :disabled="!canEstimate || loading">
           <option value="economy">Economy</option>
           <option value="premium_economy">Premium Economy</option>
           <option value="business">Business</option>
@@ -58,55 +58,91 @@
   </div>
 </template>
 
-<script>
-import FlightsMap from '@/components/FlightsMap.vue';
-import { estimateFlightEmission } from '@/api/emissionService';
+<script setup>
+import { ref, computed } from 'vue'
+import FlightsMap from '@/components/FlightsMap.vue'
+import { estimateFlightEmission } from '@/api/emissionService'
 
-export default {
-  name: 'FlightsPage',
-  components: { FlightsMap },
-  data() {
-    return {
-      selectedOrigin: '',
-      selectedDestination: '',
+// Firestore & store
+import { db } from '@/firebase'
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+import { useUserStore } from '@/stores/user'
 
-      passengers: 1,
-      flightClass: 'economy',
+// --- Setup reactive state ---
+const store = useUserStore()
 
-      emission: null,
-      loading: false,
-      error: null,
-    };
-  },
-  computed: {
-    canEstimate() {
-      return this.selectedOrigin && this.selectedDestination;
-    },
-  },
-  methods: {
-    async calculateEmission() {
-      this.error = null;
-      this.emission = null;
-      this.loading = true;
+const selectedOrigin      = ref('')
+const selectedDestination = ref('')
+const passengers          = ref(1)
+const flightClass         = ref('economy')
+const emission            = ref(null)
+const loading             = ref(false)
+const error               = ref(null)
 
-      try {
-        const kgCO2 = await estimateFlightEmission(
-          this.selectedOrigin.toUpperCase(),
-          this.selectedDestination.toUpperCase(),
-          this.passengers,
-          this.flightClass
-        );
-        this.emission = Number(kgCO2.toFixed(2));
-      } catch (e) {
-        this.error =
-          'Could not fetch emission data. Make sure both airports are valid and try again.';
-      } finally {
-        this.loading = false;
+// Computed helpers
+const canEstimate = computed(() =>
+  selectedOrigin.value !== '' && selectedDestination.value !== ''
+)
+const isLoggedIn = computed(() => store.isLoggedIn)
+const uid        = computed(() => store.currentUser?.uid || null)
+
+// --- Main method ---
+async function calculateEmission() {
+  error.value    = null
+  emission.value = null
+  loading.value  = true
+
+  if (!isLoggedIn.value) {
+    error.value   = 'Veuillez vous connecter pour enregistrer ce calcul.'
+    loading.value = false
+    return
+  }
+
+  try {
+    // 1) Estimation
+    const kgCO2 = await estimateFlightEmission(
+      selectedOrigin.value.toUpperCase(),
+      selectedDestination.value.toUpperCase(),
+      passengers.value,
+      flightClass.value
+    )
+    emission.value = Number(kgCO2.toFixed(2))
+
+    // 2) Enregistrement Firestore
+    await addDoc(
+      collection(db, 'user', uid.value, 'consommation'),
+      {
+        userId:        uid.value,                 // pour le collectionGroup
+        type:          'flight',
+        origin:        selectedOrigin.value.toUpperCase(),
+        destination:   selectedDestination.value.toUpperCase(),
+        passengers:    passengers.value,
+        flightClass:   flightClass.value,
+        co2Kg:         emission.value,
+        calculationAt: serverTimestamp()
       }
-    },
-  },
-};
+    )
+  } catch (e) {
+    console.error('Error saving flight emission:', e)
+    if (e.code === 'permission-denied') {
+      error.value = 'Permissions insuffisantes pour enregistrer ce calcul.'
+    } else {
+      error.value = 'Impossible d’estimer ou d’enregistrer l’émission.'
+    }
+  } finally {
+    loading.value = false
+  }
+}
 </script>
+
+<style scoped>
+.flights-page {
+  max-width: 800px;
+  margin: auto;
+  padding: 1rem;
+}
+</style>
+
 
 <style scoped>
 .flights-page {

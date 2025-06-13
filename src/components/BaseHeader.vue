@@ -32,12 +32,6 @@
             <router-link to="/flights" class="nav-link">Vols</router-link>
           </li>
           <li v-if="isLoggedIn" class="nav-item">
-            <router-link to="/custom" class="nav-link">Personnalisé</router-link>
-          </li>
-          <li v-if="isLoggedIn" class="nav-item">
-            <router-link to="/history" class="nav-link">Historique</router-link>
-          </li>
-          <li v-if="isLoggedIn" class="nav-item">
             <router-link to="/energy" class="nav-link">Energy</router-link>
           </li>
           <li v-if="isLoggedIn" class="nav-item">

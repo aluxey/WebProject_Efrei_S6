@@ -98,6 +98,9 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useUserStore } from '../stores/user'
+import { db } from '@/firebase'
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import {
   estimateCpu,
   estimateRam,
@@ -105,13 +108,23 @@ import {
   estimateUkGrid,
 } from '../api/climatiq'
 
-const cpuHours = ref(0)
-const ramHours = ref(0)
-const storageGbm = ref(0)
-const energyKwh = ref(0)
+const store      = useUserStore()
+const user       = computed(() => store.currentUser)
+const isLoggedIn = computed(() => store.isLoggedIn)
 
-const result = ref(null)
+// Vos v-models
+const cpuHours   = ref(0)
+const ramHours   = ref(0)
+const storageGbm = ref(0)
+const energyKwh  = ref(0)
+
+const result       = ref(null)
 const errorMessage = ref('')
+const total = computed(() =>
+  result.value
+    ? result.value.cpu + result.value.ram + result.value.storage + result.value.energy
+    : 0
+)
 
 const canEstimate = computed(
   () =>
@@ -121,40 +134,63 @@ const canEstimate = computed(
     energyKwh.value > 0
 )
 
-const total = computed(() =>
-  result.value
-    ? result.value.cpu +
-      result.value.ram +
-      result.value.storage +
-      result.value.energy
-    : 0
-)
-
 async function estimateAPI() {
+  // 1) Vérif connexion
+  if (!isLoggedIn.value) {
+    errorMessage.value = 'Vous devez être connecté pour enregistrer le calcul.'
+    return
+  }
+
+  // 2) Reset UI
   errorMessage.value = ''
-  result.value = null
+  result.value       = null
 
   try {
+    // 3) Appel Climatiq
     const [cpuRes, ramRes, storageRes, energyRes] = await Promise.all([
       estimateCpu(cpuHours.value),
       estimateRam(ramHours.value),
       estimateStorage(storageGbm.value),
       estimateUkGrid(energyKwh.value),
     ])
-
     result.value = {
-      cpu: cpuRes.co2e || 0,
-      ram: ramRes.co2e || 0,
+      cpu:     cpuRes.co2e || 0,
+      ram:     ramRes.co2e || 0,
       storage: storageRes.co2e || 0,
-      energy: energyRes.co2e || 0,
+      energy:  energyRes.co2e || 0,
     }
+
+    // 4) Écriture Firestore
+    // Récupère l'UID stocké en Pinia
+    const uid = user.value.uid
+    console.log('Écriture Firestore pour UID =', uid)
+
+    await addDoc(
+      collection(db, 'user', uid, 'consommation'),
+      {
+        userId:        uid.value,
+        cpu:           result.value.cpu,
+        ram:           result.value.ram,
+        storage:       result.value.storage,
+        energy:        result.value.energy,
+        total:         total.value,
+        params: {
+          cpuHours:   cpuHours.value,
+          ramHours:   ramHours.value,
+          storageGbm: storageGbm.value,
+          energyKwh:  energyKwh.value,
+        },
+        calculationAt: serverTimestamp(),
+      }
+    )
+    console.log('Calcul enregistré !')
   } catch (err) {
-    if (err.response && err.response.data) {
-      errorMessage.value = `Erreur Climatiq : ${err.response.data.error_type || 'Bad Request'}. Vérifiez la console pour le payload exact.`
+    console.error('Erreur lors de l’estimation ou de l’enregistrement :', err)
+    if (err.code === 'permission-denied') {
+      errorMessage.value = 'Permissions insuffisantes : vérifiez vos règles Firestore.'
     } else {
-      errorMessage.value = 'Erreur réseau ou inconnue : ' + err.message
+      errorMessage.value = 'Erreur : ' + (err.message || err)
     }
-    console.error('Erreur lors de l’estimation Climatiq :', err)
   }
 }
 </script>
